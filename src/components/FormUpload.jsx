@@ -3,7 +3,7 @@ class FormUpload extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            recencyData: [], // Data CSV yang akan dibaca
+            data: [],     // Data CSV yang akan dibaca
         };
     }
 
@@ -36,7 +36,8 @@ class FormUpload extends Component {
             reader.onload = (e) => {
                 const csvText = e.target.result;
                 const customerData = this.parseCSVData(csvText);
-                this.calculateRecency(customerData);
+                this.calculateRFM(customerData);
+                // this.calculateFrequency(customerData);
             };
 
             reader.readAsText(file);
@@ -44,7 +45,7 @@ class FormUpload extends Component {
     };
 
 
-    calculateRecency = (customerData) => {
+    calculateRFM = (customerData) => {
         const filtered = []
         customerData.forEach(item => {
             const exist = filtered.find(f => f.CustomerID === item.CustomerID)
@@ -53,13 +54,9 @@ class FormUpload extends Component {
                 filtered.push({ CustomerID, Name })
             }
         })
-        // const Recency = customerData.filter(f => f.CustomerID === item.CustomerID).reduce((f, val) => {
-        //     const transactionDate = new Date(f.Date);
-        //     const timeDifference = currentDate - transactionDate;
-        //     const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-        //     return daysDifference > val ? daysDifference : val
-        // }, 0)
-        const recencyData = filtered.map(item => {
+
+
+        const result = filtered.map(item => {
             const arrFilter = customerData.filter(f => f.CustomerID === item.CustomerID)
             const largest = arrFilter.reduce((prev, val) => {
                 if (!prev) return val
@@ -67,30 +64,38 @@ class FormUpload extends Component {
                 const currentDiffDays = this.calculateDifferenceDays(val.Date)
                 return prevDiffDays < currentDiffDays ? prev : val
             }, undefined)
-            console.log("largest", largest)
             const Recency = this.calculateDifferenceDays(largest.Date)
+            const Frequency = arrFilter.length;
+            const Monetary = arrFilter.reduce((prev, next) => prev + next.NetSales, 0)
+            console.log('cek frekuensi', Monetary)
             return {
                 ...item,
-                Recency
+                Recency,
+                Frequency,
+                Monetary
             }
         }
         )
-        // const recencyData = customerData.map((customer) => {
-        //     const transactionDate = new Date(customer.Date);
-        //     const timeDifference = currentDate - transactionDate;
-        //     const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-        //     return {
-        //         CustomerID: customer.CustomerID,
-        //         Name: customer.Name,
-        //         Recency: daysDifference,
-        //     };
-        // });
-        console.log("Recency Data", recencyData)
 
-        this.setState({ recencyData });
+        this.setState({ data: result });
     };
 
 
+    // calculateFrequency = (customerData) => {
+    //     const frequencyMap = {};
+    //     customerData.forEach(customer => {
+    //         const CustomerID = customer.CustomerID;
+    //         if (frequencyMap[CustomerID]) {
+    //             frequencyMap[CustomerID]++;
+    //         } else {
+    //             frequencyMap[CustomerID] = 1;
+    //             console.log('cek frekuensi', frequencyMap);
+    //         }
+    //     }
+    //     );
+    //     const Frequency = this.calculateFrequency(customerData, frequencyMap)
+    //     return Frequency
+    // }
 
     calculateDifferenceDays = (date) => {
         const currentDate = new Date(); // Tanggal referensi (biasanya hari ini)
@@ -122,49 +127,73 @@ class FormUpload extends Component {
     }
     render() {
         return (
-            <div className='w-full mx-auto flex flex-col items-center h-screen overflow-y-auto py-20'>
-                <div className="w-full max-w-screen-2xl mx-auto bg-white shadow-lg rounded-sm border border-gray-200">
-                    <header className="px-5 py-4 border-b border-gray-100 flex w-full space-x-6">
-                        <h2 className="font-semibold text-gray-800">Recency</h2>
-                        <input type="file" accept=".csv" className='border border-gray-950' onChange={this.handleFileChange} />
-                    </header>
-                    <div className="p-3">
-                        <div className="overflow-x-auto">
-                            <table className="table-auto w-full">
-                                <thead className="text-xs font-semibold uppercase text-gray-400 bg-gray-50">
-                                    <tr>
-                                        <th className="p-2 whitespace-nowrap">
-                                            <div className="font-semibold text-left">Customer ID</div>
-                                        </th>
-                                        <th className="p-2 whitespace-nowrap">
-                                            <div className="font-semibold text-left">Name</div>
-                                        </th>
-                                        <th className="p-2 whitespace-nowrap">
-                                            <div className="font-semibold text-left">Recency</div>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="text-sm divide-y divide-gray-100">
-                                    {this.state.recencyData.length ? this.state.recencyData.map((customer, index) => (
-                                        <tr key={customer.CustomerID}>
-                                            <td className="p-2 whitespace-nowrap">
-                                                <div className="text-left">{customer.CustomerID}</div>
-                                            </td>
-                                            <td className="p-2 whitespace-nowrap">
-                                                <div className="text-left">{customer.Name}</div>
-                                            </td>
-                                            <td className="p-2 whitespace-nowrap">
-                                                <div className="text-left">{customer.Recency}</div>
-                                            </td>
-                                        </tr>
-                                    )) : (
-                                        <tr>
-                                            <td colSpan={3} className='flex text-center text-lg w-full justify-center items-center'>Tidak Ada Data zis</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+            <div className='w-full flex flex-col max-h-screen'>
+                <div className='flex w-full justify-center items-center py-20'>
+                    <p className='text-2xl font-bold'>System RFM Analysis</p>
+                </div>
+                <div className='w-full flex'>
+                    <div className='w-full mx-auto flex flex-col items-center max-h-[75vh] overflow-y-auto'>
+                        <div className="w-full max-w-screen-2xl mx-auto bg-white shadow-lg rounded-sm border border-gray-200">
+                            <header className="px-5 py-4 border-b border-gray-100 flex w-full space-x-6">
+                                <h2 className="font-semibold text-gray-800">Upload Your Data</h2>
+                                <input type="file" accept=".csv" className='border border-gray-950' onChange={this.handleFileChange} />
+                            </header>
+                            <div className="p-3">
+                                <div className="overflow-x-auto">
+                                    <table className="table-auto w-full">
+                                        <thead className="text-lg font-semibold uppercase text-gray-400 bg-gray-50">
+                                            <tr>
+                                                <th className="p-2 whitespace-nowrap">
+                                                    <div className="font-semibold text-left">Customer ID</div>
+                                                </th>
+                                                <th className="p-2 whitespace-nowrap">
+                                                    <div className="font-semibold text-left">Name</div>
+                                                </th>
+                                                <th className="p-2 whitespace-nowrap">
+                                                    <div className="font-semibold text-left">Recency</div>
+                                                </th>
+                                                <th className="p-2 whitespace-nowrap">
+                                                    <div className="font-semibold text-left">Frequency</div>
+                                                </th>
+                                                <th className="p-2 whitespace-nowrap">
+                                                    <div className="font-semibold text-left">Monetary</div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-xl divide-y divide-gray-100">
+                                            {this.state.data.length ? this.state.data.map((customer, index) => (
+                                                <tr key={customer.CustomerID}>
+                                                    <td className="p-2 whitespace-nowrap">
+                                                        <div className="text-left">{customer.CustomerID}</div>
+                                                    </td>
+                                                    <td className="p-2 whitespace-nowrap">
+                                                        <div className="text-left">{customer.Name}</div>
+                                                    </td>
+                                                    <td className="p-2 whitespace-nowrap">
+                                                        <div className="text-left">{customer.Recency}</div>
+                                                    </td>
+                                                    <td className="p-2 whitespace-nowrap">
+                                                        <div className="text-left">{customer.Frequency}</div>
+                                                    </td>
+                                                    <td className="p-2 whitespace-nowrap">
+                                                        <div className="text-left">{customer.Monetary}</div>
+                                                    </td>
+                                                </tr>
+                                            )) : (
+                                                <tr>
+                                                    <td colSpan={3} className='flex text-center text-lg w-full justify-center items-center'>Tidak Ada Data zis</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                    <div className='max-w-md w-full grid gap-2 px-12 overflow-y-auto '>
+                        <div className='w-52 h-52 bg-white border border-neutral-100 shadow-xl'>Pelanggan Royal</div>
+                        <div className='w-52 h-52 bg-white border border-neutral-100 shadow-xl'>Pelanggan Loyal</div>
+                        <div className='w-52 h-52 bg-white border border-neutral-100 shadow-xl'>Pelanggan</div>
                     </div>
                 </div>
             </div>

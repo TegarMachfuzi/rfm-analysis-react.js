@@ -10,10 +10,11 @@ function App() {
   return (
     <Router>
       <div className='flex flex-row bg-neutral-100 h-screen w-screen'>
-        <Sidebar/>
+        {/* <Sidebar/> */}
         <Routes>
         <Route path='/' element={<Dashboard/>}/>
-        <Route path='recency' element={<FormUpload/>}/>
+        <Route path='rfm' element={<FormUpload/>}/>
+        
       </Routes>
       </div>
       
