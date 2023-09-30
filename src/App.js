@@ -9,7 +9,7 @@ import Sidebar from './components/shared/Sidebar';
 function App() {
   return (
     <Router>
-      <div className='flex flex-row bg-neutral-100 h-screen w-screen'>
+      <div className='flex flex-row bg-neutral-200 h-screen w-screen'>
         {/* <Sidebar/> */}
         <Routes>
         <Route path='/' element={<Dashboard/>}/>

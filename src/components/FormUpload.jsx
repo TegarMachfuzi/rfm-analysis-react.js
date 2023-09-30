@@ -4,6 +4,8 @@ class FormUpload extends Component {
         super(props);
         this.state = {
             data: [],     // Data CSV yang akan dibaca
+            bestMonetary: undefined,
+            bestFrequency: undefined,
         };
     }
 
@@ -58,6 +60,7 @@ class FormUpload extends Component {
 
         const result = filtered.map(item => {
             const arrFilter = customerData.filter(f => f.CustomerID === item.CustomerID)
+            console.log('data RFM', arrFilter)
             const largest = arrFilter.reduce((prev, val) => {
                 if (!prev) return val
                 const prevDiffDays = this.calculateDifferenceDays(prev.Date)
@@ -67,35 +70,36 @@ class FormUpload extends Component {
             const Recency = this.calculateDifferenceDays(largest.Date)
             const Frequency = arrFilter.length;
             const Monetary = arrFilter.reduce((prev, next) => prev + next.NetSales, 0)
-            console.log('cek frekuensi', Monetary)
+            const Tertinggi = arrFilter.reduce((pelangganTertinggi, customer) => pelangganTertinggi > customer.NetSales ? pelangganTertinggi : customer.NetSales, 0)
+
             return {
                 ...item,
                 Recency,
                 Frequency,
-                Monetary
+                Monetary,
+                Tertinggi
             }
-        }
-        )
+        })
 
-        this.setState({ data: result });
+        //calculate best monetary
+        const valMonetary = result.reduce((prev, next) => {
+            if (!prev) return next
+            return prev.Monetary > next.Monetary ? prev : next
+        }, undefined)
+
+        const valFrequency = result.reduce((prev, next) => {
+            if (!prev) return next
+            return prev.Frequency > next.Frequency ? prev : next
+        }, undefined)
+
+        console.log('valFreq', valFrequency);
+        console.log('valMon', valMonetary);
+
+
+        this.setState({ data: result, bestMonetary: valMonetary, bestFrequency: valFrequency });
     };
 
 
-    // calculateFrequency = (customerData) => {
-    //     const frequencyMap = {};
-    //     customerData.forEach(customer => {
-    //         const CustomerID = customer.CustomerID;
-    //         if (frequencyMap[CustomerID]) {
-    //             frequencyMap[CustomerID]++;
-    //         } else {
-    //             frequencyMap[CustomerID] = 1;
-    //             console.log('cek frekuensi', frequencyMap);
-    //         }
-    //     }
-    //     );
-    //     const Frequency = this.calculateFrequency(customerData, frequencyMap)
-    //     return Frequency
-    // }
 
     calculateDifferenceDays = (date) => {
         const currentDate = new Date(); // Tanggal referensi (biasanya hari ini)
@@ -122,18 +126,17 @@ class FormUpload extends Component {
 
         // Buat objek Date
         const dateObject = new Date(year, day, month);
-        console.log("cek hari", dateObject)
         return dateObject
     }
     render() {
         return (
-            <div className='w-full flex flex-col max-h-screen'>
+            <div className='w-full flex flex-col max-h-screen '>
                 <div className='flex w-full justify-center items-center py-20'>
                     <p className='text-2xl font-bold'>System RFM Analysis</p>
                 </div>
-                <div className='w-full flex'>
+                <div className='w-full flex '>
                     <div className='w-full mx-auto flex flex-col items-center max-h-[75vh] overflow-y-auto'>
-                        <div className="w-full max-w-screen-2xl mx-auto bg-white shadow-lg rounded-sm border border-gray-200">
+                        <div className="w-full max-w-screen-2xl mx-auto shadow-xl rounded-sm border border-gray-200 bg-white">
                             <header className="px-5 py-4 border-b border-gray-100 flex w-full space-x-6">
                                 <h2 className="font-semibold text-gray-800">Upload Your Data</h2>
                                 <input type="file" accept=".csv" className='border border-gray-950' onChange={this.handleFileChange} />
@@ -158,6 +161,9 @@ class FormUpload extends Component {
                                                 <th className="p-2 whitespace-nowrap">
                                                     <div className="font-semibold text-left">Monetary</div>
                                                 </th>
+                                                <th className="p-2 whitespace-nowrap">
+                                                    <div className="font-semibold text-left">Tertinggi</div>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="text-xl divide-y divide-gray-100">
@@ -178,6 +184,9 @@ class FormUpload extends Component {
                                                     <td className="p-2 whitespace-nowrap">
                                                         <div className="text-left">{customer.Monetary}</div>
                                                     </td>
+                                                    <td className="p-2 whitespace-nowrap">
+                                                        <div className="text-left">{customer.Tertinggi}</div>
+                                                    </td>
                                                 </tr>
                                             )) : (
                                                 <tr>
@@ -190,10 +199,37 @@ class FormUpload extends Component {
                             </div>
                         </div>
                     </div>
-                    <div className='max-w-md w-full grid gap-2 px-12 overflow-y-auto '>
-                        <div className='w-52 h-52 bg-white border border-neutral-100 shadow-xl'>Pelanggan Royal</div>
-                        <div className='w-52 h-52 bg-white border border-neutral-100 shadow-xl'>Pelanggan Loyal</div>
-                        <div className='w-52 h-52 bg-white border border-neutral-100 shadow-xl'>Pelanggan</div>
+                    <div className='max-w-md w-full grid gap-2 px-12 overflow-y-auto'>
+                        <div className='w-52 h-52 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
+                            <p>
+                                Pelanggan Royal
+                            </p>
+                            {
+                                this.state.bestMonetary && (<>
+                                    <div className='text-lg font-bold text-black'>{this.state.bestMonetary.Name}</div>
+                                    <div className='text-lg font-bold text-black'>Rp. {this.state.bestMonetary.Monetary}</div>
+                                </>
+                                )
+                            }
+                        </div>
+                        <div className='w-52 h-52 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
+                            <p>
+                                Pelanggan Loyal
+                            </p>
+                            {
+                                this.state.bestFrequency && (<>
+                                    <div className='text-lg font-bold text-black'>{this.state.bestFrequency.Name}</div>
+                                    <div className='text-lg font-bold text-black'>Total Datang {this.state.bestFrequency.Frequency}</div>
+                                </>
+                                )
+                            }
+                        </div>
+                        <div className='w-52 h-52 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
+                            <p>
+                                Pelanggan
+                            </p>
+                            <div className='text-lg font-bold text-black'>Rp. </div>
+                        </div>
                     </div>
                 </div>
             </div>
