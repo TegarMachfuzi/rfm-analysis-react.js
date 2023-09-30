@@ -6,6 +6,7 @@ class FormUpload extends Component {
             data: [],     // Data CSV yang akan dibaca
             bestMonetary: undefined,
             bestFrequency: undefined,
+            bestRecency: undefined,
         };
     }
 
@@ -92,11 +93,16 @@ class FormUpload extends Component {
             return prev.Frequency > next.Frequency ? prev : next
         }, undefined)
 
+        const valRecency = result.reduce((prev, next) => {
+            if (!prev) return next
+            return prev.Recency < next.Recency ? prev : next
+        }, undefined)
+
         console.log('valFreq', valFrequency);
         console.log('valMon', valMonetary);
 
 
-        this.setState({ data: result, bestMonetary: valMonetary, bestFrequency: valFrequency });
+        this.setState({ data: result, bestMonetary: valMonetary, bestFrequency: valFrequency, bestRecency: valRecency });
     };
 
 
@@ -226,9 +232,15 @@ class FormUpload extends Component {
                         </div>
                         <div className='w-52 h-52 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
                             <p>
-                                Pelanggan
+                                Recency Terendah
                             </p>
-                            <div className='text-lg font-bold text-black'>Rp. </div>
+                            {
+                                this.state.bestRecency && (<>
+                                    <div className='text-lg font-bold text-black'>{this.state.bestRecency.Name}</div>
+                                    <div className='text-lg font-bold text-black'>{this.state.bestRecency.Recency} Hari Yang lalu</div>
+                                </>
+                                )
+                            }
                         </div>
                     </div>
                 </div>
