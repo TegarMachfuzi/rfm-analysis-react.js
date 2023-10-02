@@ -1,7 +1,6 @@
 import './App.css';
 import FormUpload from './components/FormUpload';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Dashboard from './components/Dashboard';
 
 
 
@@ -10,9 +9,7 @@ function App() {
     <Router>
       <div className='flex flex-row bg-neutral-200 h-screen w-screen'>
         <Routes>
-        <Route path='/' element={<Dashboard/>}/>
-        <Route path='rfm' element={<FormUpload/>}/>
-        
+        <Route path='/' element={<FormUpload/>}/>
       </Routes>
       </div>
       
