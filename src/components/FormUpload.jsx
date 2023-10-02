@@ -137,12 +137,12 @@ class FormUpload extends Component {
     render() {
         return (
             <div className='w-full flex flex-col max-h-screen '>
-                <div className='flex w-full justify-center items-center py-20'>
+                <div className='flex w-full justify-center items-center py-10'>
                     <p className='text-2xl font-bold'>System RFM Analysis</p>
                 </div>
                 <div className='w-full flex '>
                     <div className='w-full mx-auto flex flex-col items-center max-h-[75vh] overflow-y-auto'>
-                        <div className="w-full max-w-screen-2xl mx-auto shadow-xl rounded-sm border border-gray-200 bg-white">
+                        <div className="w-full max-w-screen-lg mx-auto shadow-xl rounded-sm border border-gray-200 bg-white">
                             <header className="px-5 py-4 border-b border-gray-100 flex w-full space-x-6">
                                 <h2 className="font-semibold text-gray-800">Upload Your Data</h2>
                                 <input type="file" accept=".csv" className='border border-gray-950' onChange={this.handleFileChange} />
@@ -206,7 +206,7 @@ class FormUpload extends Component {
                         </div>
                     </div>
                     <div className='max-w-md w-full grid gap-2 px-12 overflow-y-auto'>
-                        <div className='w-52 h-52 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
+                        <div className='w-48 h-48 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
                             <p>
                                 Pelanggan Royal
                             </p>
@@ -218,7 +218,7 @@ class FormUpload extends Component {
                                 )
                             }
                         </div>
-                        <div className='w-52 h-52 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
+                        <div className='w-48 h-48 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
                             <p>
                                 Pelanggan Loyal
                             </p>
@@ -230,7 +230,7 @@ class FormUpload extends Component {
                                 )
                             }
                         </div>
-                        <div className='w-52 h-52 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
+                        <div className='w-48 h-48 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
                             <p>
                                 Recency Terendah
                             </p>
