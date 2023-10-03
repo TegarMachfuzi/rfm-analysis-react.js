@@ -1,4 +1,7 @@
 import React, { Component } from 'react'
+import { Pie } from 'react-chartjs-2'
+import { Chart, registerables } from 'chart.js'
+Chart.register(...registerables)
 class FormUpload extends Component {
     constructor(props) {
         super(props);
@@ -7,6 +10,10 @@ class FormUpload extends Component {
             bestMonetary: undefined,
             bestFrequency: undefined,
             bestRecency: undefined,
+            segmentCust: undefined,
+            championsCount: [],
+            loyalCostumersCount: [],
+            atRiskCustomers: [],
         };
     }
 
@@ -98,11 +105,31 @@ class FormUpload extends Component {
             return prev.Recency < next.Recency ? prev : next
         }, undefined)
 
-        console.log('valFreq', valFrequency);
-        console.log('valMon', valMonetary);
+        const champions = [];
+        const loyalCustomers = [];
+        const atRiskCustomers = [];
+        const resultData = result.forEach(customer => {
+            if (customer.Recency <= 100 && customer.Frequency >= 25 && customer.Monetary >= 700000) {
+                champions.push(customer);
+            } else if (customer.Recency <= 95 && customer.Frequency >= 24 && customer.Monetary >= 500000) {
+                loyalCustomers.push(customer);
+            } else {
+                atRiskCustomers.push(customer);
+            }
+            console.log('chamionsCek', champions);
+
+            const championsCount = champions.length;
+            const loyalCostumersCount = loyalCustomers.length;
+            const atRiskCustomersCount = atRiskCustomers.length;
+
+            console.log('champions', championsCount);
+
+            this.setState({ championsCount: championsCount, loyalCostumersCount: loyalCostumersCount, atRiskCustomersCount: atRiskCustomersCount })
+        });
 
 
-        this.setState({ data: result, bestMonetary: valMonetary, bestFrequency: valFrequency, bestRecency: valRecency });
+
+        this.setState({ data: result, bestMonetary: valMonetary, bestFrequency: valFrequency, bestRecency: valRecency, segmentCust: resultData });
     };
 
 
@@ -135,6 +162,27 @@ class FormUpload extends Component {
         return dateObject
     }
     render() {
+
+        const { championsCount, loyalCostumersCount, atRiskCustomersCount } = this.state;
+
+        const data = {
+            labels: ['Champion', 'Loyal Customer', 'At Risk Customer'],
+            datasets: [
+                {
+                    label: 'Jumlah Pelanggan',
+                    backgroundolor: ['green', 'blue', 'red'],
+                    borderColor: 'rgba(0,0,0,1)',
+                    data: [championsCount, loyalCostumersCount, atRiskCustomersCount],
+                }
+            ]
+        }
+        console.log('cekData', data)
+
+        const options = {
+            sales: {
+                beginAtZero: true,
+            }
+        }
         return (
             <div className='w-full flex flex-col max-h-screen '>
                 <div className='flex w-full justify-center items-center py-10'>
@@ -242,6 +290,22 @@ class FormUpload extends Component {
                                 )
                             }
                         </div>
+                    </div>
+                    <div>
+                        <h1>Segmentasi Pelanggan</h1>
+                        <Pie data={data}
+                            options={{
+                                title: {
+                                    display: true,
+                                    text: 'Class Strength',
+                                    fonstSize: 20,
+                                },
+                                legend: {
+                                    display: true,
+                                    position: 'right',
+                                },
+                            }}
+                        />
                     </div>
                 </div>
             </div>
