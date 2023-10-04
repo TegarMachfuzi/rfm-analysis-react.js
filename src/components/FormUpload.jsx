@@ -111,7 +111,7 @@ class FormUpload extends Component {
         const resultData = result.forEach(customer => {
             if (customer.Recency <= 100 && customer.Frequency >= 25 && customer.Monetary >= 700000) {
                 champions.push(customer);
-            } else if (customer.Recency <= 95 && customer.Frequency >= 24 && customer.Monetary >= 500000) {
+            } else if (customer.Recency <= 110 && customer.Frequency >= 24 && customer.Monetary >= 500000) {
                 loyalCustomers.push(customer);
             } else {
                 atRiskCustomers.push(customer);
@@ -121,6 +121,8 @@ class FormUpload extends Component {
             const championsCount = champions.length;
             const loyalCostumersCount = loyalCustomers.length;
             const atRiskCustomersCount = atRiskCustomers.length;
+
+            console.log('loyalCustomer', loyalCostumersCount)
 
             console.log('champions', championsCount);
 
@@ -170,7 +172,7 @@ class FormUpload extends Component {
             datasets: [
                 {
                     label: 'Jumlah Pelanggan',
-                    backgroundolor: ['green', 'blue', 'red'],
+                    backgroundColor: ['green', 'blue', 'red'],
                     borderColor: 'rgba(0,0,0,1)',
                     data: [championsCount, loyalCostumersCount, atRiskCustomersCount],
                 }
@@ -250,10 +252,30 @@ class FormUpload extends Component {
                                         </tbody>
                                     </table>
                                 </div>
+
                             </div>
                         </div>
+
                     </div>
-                    <div className='max-w-md w-full grid gap-2 px-12 overflow-y-auto'>
+                    <div className='w-80 h-80 text-center font-semibold p-5 grid gap-2 px-2'>
+                        <p>
+                            Segmentasi Pelanggan
+                        </p>
+                        <Pie data={data}
+                            options={{
+                                title: {
+                                    display: true,
+                                    text: 'Class Strength',
+                                    fonstSize: 20,
+                                },
+                                legend: {
+                                    display: true,
+                                    position: 'right',
+                                },
+                            }}
+                        />
+                    </div>
+                    <div className='max-w-xs w-full grid gap-2 px-12 overflow-y-auto'>
                         <div className='w-48 h-48 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
                             <p>
                                 Pelanggan Royal
@@ -290,22 +312,6 @@ class FormUpload extends Component {
                                 )
                             }
                         </div>
-                    </div>
-                    <div>
-                        <h1>Segmentasi Pelanggan</h1>
-                        <Pie data={data}
-                            options={{
-                                title: {
-                                    display: true,
-                                    text: 'Class Strength',
-                                    fonstSize: 20,
-                                },
-                                legend: {
-                                    display: true,
-                                    position: 'right',
-                                },
-                            }}
-                        />
                     </div>
                 </div>
             </div>
