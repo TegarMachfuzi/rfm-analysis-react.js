@@ -7,7 +7,7 @@ class FormUpload extends Component {
         super(props);
         this.state = {
             data: [],     // Data CSV yang akan dibaca
-            bestMonetary: undefined,
+            bestMonetary: null,
             bestFrequency: undefined,
             bestRecency: undefined,
             segmentCust: undefined,
@@ -68,7 +68,6 @@ class FormUpload extends Component {
 
         const result = filtered.map(item => {
             const arrFilter = customerData.filter(f => f.CustomerID === item.CustomerID)
-            console.log('data RFM', arrFilter)
             const largest = arrFilter.reduce((prev, val) => {
                 if (!prev) return val
                 const prevDiffDays = this.calculateDifferenceDays(prev.Date)
@@ -80,6 +79,8 @@ class FormUpload extends Component {
             const Monetary = arrFilter.reduce((prev, next) => prev + next.NetSales, 0)
             const Tertinggi = arrFilter.reduce((pelangganTertinggi, customer) => pelangganTertinggi > customer.NetSales ? pelangganTertinggi : customer.NetSales, 0)
 
+            console.log('data Monetary', Monetary);
+
             return {
                 ...item,
                 Recency,
@@ -89,29 +90,45 @@ class FormUpload extends Component {
             }
         })
 
+
+        // const valMonetary = result.reduce((prev, next) => {
+        //     if (next.Monetary > prev) {
+        //         return next.Monetary;
+        //     }
+        //     return prev;
+        // }, 0);
+        // console.log('Top Mon', valMonetary)
+
+
+
         //calculate best monetary
         const valMonetary = result.reduce((prev, next) => {
             if (!prev) return next
-            return prev.Monetary > next.Monetary ? prev : next
+            console.log('nextMon', next.Monetary)
+            return next.Monetary > prev.Monetary ? next : prev
         }, undefined)
+        console.log('Top Mon', valMonetary);
 
         const valFrequency = result.reduce((prev, next) => {
             if (!prev) return next
             return prev.Frequency > next.Frequency ? prev : next
         }, undefined)
 
+
         const valRecency = result.reduce((prev, next) => {
             if (!prev) return next
             return prev.Recency < next.Recency ? prev : next
         }, undefined)
 
+        console.log('Pelanggan Royal', valMonetary);
+
         const champions = [];
         const loyalCustomers = [];
         const atRiskCustomers = [];
         const resultData = result.forEach(customer => {
-            if (customer.Recency <= 100 && customer.Frequency >= 25 && customer.Monetary >= 700000) {
+            if (customer.Recency <= 130 && customer.Frequency >= 20 && customer.Monetary >= 700000) {
                 champions.push(customer);
-            } else if (customer.Recency <= 110 && customer.Frequency >= 24 && customer.Monetary >= 500000) {
+            } else if (customer.Recency <= 150 && customer.Frequency >= 18 && customer.Monetary >= 200000) {
                 loyalCustomers.push(customer);
             } else {
                 atRiskCustomers.push(customer);
@@ -121,6 +138,10 @@ class FormUpload extends Component {
             const championsCount = champions.length;
             const loyalCostumersCount = loyalCustomers.length;
             const atRiskCustomersCount = atRiskCustomers.length;
+
+            const topChampionsCustomer = loyalCustomers.slice(0, 5);
+
+            console.log('5 loyal Data', topChampionsCustomer);
 
             console.log('loyalCustomer', loyalCostumersCount)
 
@@ -156,7 +177,7 @@ class FormUpload extends Component {
         // Pisahkan string menjadi komponen tanggal, bulan, dan tahun
         const dateParts = dateString.split("/");
         const day = parseInt(dateParts[0], 10); // Konversi ke integer
-        const month = parseInt(dateParts[1], 10) - 1; // Konversi ke integer dan kurangi 1 karena indeks bulan dimulai dari 0
+        const month = parseInt(dateParts[1], 10) - 31; // Konversi ke integer dan kurangi 1 karena indeks bulan dimulai dari 0
         const year = parseInt(dateParts[2], 10);
 
         // Buat objek Date
@@ -302,7 +323,7 @@ class FormUpload extends Component {
                         </div>
                         <div className='w-48 h-48 bg-white border border-neutral-200 shadow-2xl text-center rounded-xl p-5 text-gray-400 flex flex-col items-center justify-center'>
                             <p>
-                                Recency Terendah
+                                Top Recency
                             </p>
                             {
                                 this.state.bestRecency && (<>
